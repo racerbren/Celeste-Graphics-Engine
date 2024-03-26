@@ -2,31 +2,13 @@
 #include <SDL.h>
 #include <iostream>
 
+#include "Shader.h"
+
 #undef main
 
 //Set width and height of the window
 #define width 1280
 #define height 1060
-
-//Temporary vertex shader
-const char* vertexShaderSource = "#version 330 core\n"
-"layout(location = 0) in vec3 aPos; // the position variable has attribute position 0\n"
-"layout(location = 1) in vec3 aColor;\n"
-"out vec3 vertexColor; // specify a color output to the fragment shader\n"
-"void main()\n"
-"{\n"
-"	gl_Position = vec4(aPos, 1.0); // see how we directly give a vec3 to vec4's constructor\n"
-"	vertexColor = aColor; // set the output variable to a dark-red color\n"
-"}\0";
-
-//Temporary fragment shader
-const char* fragmentShaderSource = "#version 330 core\n"
-"in vec3 vertexColor;\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"	FragColor = vec4(vertexColor, 1.0f);\n"
-"}\0";
 
 //Define the vertices and faces of a rectangle
 //float vertices[] = {
@@ -101,69 +83,16 @@ int main(int argc, char* argv[])
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
 
-	//Create a vertex shader on the GPU
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-	//Attach the shader source code, in this case the c-string at the top of our code, to the vertexShader we created in VRAM
-	//Then, compile the shader
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-
-	//Check if the compile status of the vertex shader is successful or not and record it in success
-	int  success;
-	char infoLog[512];
-
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		//Report the info given by the check above
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	//Create, attach, compile the fragment shader. Same as before, but for the fragment shader
-	unsigned int fragmentShader;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		//Report the info given by the check above
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	//Create a shader program through OpenGL
-	unsigned int shaderProgram;
-	shaderProgram = glCreateProgram();
-
-	//Attach the vertex and fragment shaders to the created shader program
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-
-	//Link the attached shaders through the program
-	glLinkProgram(shaderProgram);
-
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINK_FAILED\n" << infoLog << std::endl;
-	}
-
-	//Clean up the shader objects since we do not need them anymore
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
 	//Tell OpenGL how to interpret the vertex buffer data and store it in the current vertex array object
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	Shader defaultShader;
+	defaultShader.load("Shaders/default.vert", "Shaders/default.frag");
+	defaultShader.activate();
 
 	//main loop runs until window is closed
 	bool destroyed = false;
@@ -181,13 +110,6 @@ int main(int argc, char* argv[])
 		//Clear the depth buffer bit
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		//Activate the shader program, bind the vertex array object to the current buffer type, and draw the triangle
-		glUseProgram(shaderProgram);
-		/*float timeValue = SDL_GetTicks() / 1000.0f;
-		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-		int vertexColorLocation = glGetUniformLocation(shaderProgram, "vertexColor");
-		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);*/
-
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, (sizeof(faces) / sizeof(*faces)) + (sizeof(vertices) / sizeof(*vertices)), GL_UNSIGNED_INT, 0);
 		//Disable the VAO
@@ -201,7 +123,6 @@ int main(int argc, char* argv[])
 	//Deallocate memory for vertex array and buffer objects and the shader program
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteProgram(shaderProgram);
 
 	//If the window is closed, clean up and exit SDL2
 	SDL_DestroyWindow(window);
