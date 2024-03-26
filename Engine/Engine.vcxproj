@@ -131,11 +131,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AssimpImport.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mesh3D.cpp" />
+    <ClCompile Include="Object3D.cpp" />
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AssimpImport.h" />
+    <ClInclude Include="Mesh3D.h" />
+    <ClInclude Include="Object3D.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
