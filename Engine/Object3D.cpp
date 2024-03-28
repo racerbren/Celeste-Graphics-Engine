@@ -1,7 +1,7 @@
 #include <SFML/Graphics/Transform.hpp>
 #include <glm/ext.hpp>
 #include "Object3D.h"
-#include "ShaderProgram.h"
+#include "Shader.h"
 
 void Object3D::rebuildModelMatrix() {
 	auto m = glm::translate(glm::mat4(1), m_position);
@@ -58,8 +58,8 @@ void Object3D::grow(const glm::vec3& growth) {
 	rebuildModelMatrix();
 }
 
-void Object3D::render(sf::RenderWindow& window, ShaderProgram& shaderProgram) const {
-	shaderProgram.setUniform("model", m_modelMatrix);
+void Object3D::render(sf::RenderWindow& window, Shader& shader) const {
+	shader.setUniform("model", m_modelMatrix);
 	m_mesh->render(window);
 }
 

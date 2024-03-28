@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <SFML/Graphics/Transform.hpp>
-#include "ShaderProgram.h"
+#include "Shader.h"
 #include "Mesh3D.h"
 class Object3D {
 private:
@@ -43,7 +43,7 @@ public:
 	void grow(const glm::vec3& growth);
 
 	// Rendering.
-	void render(sf::RenderWindow& window, ShaderProgram& shaderProgram) const;
+	void render(sf::RenderWindow& window, Shader& shader) const;
 
 	void addTex(sf::Image texture);
 	void cycleTex();

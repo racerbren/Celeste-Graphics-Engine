@@ -1,5 +1,5 @@
 #include <glad/glad.h>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <iostream>
 
 #include "Shader.h"
@@ -7,8 +7,8 @@
 #undef main
 
 //Set width and height of the window
-#define width 1280
-#define height 1060
+#define width 1080
+#define height 720
 
 //Define the vertices and faces of a rectangle
 //float vertices[] = {
@@ -64,32 +64,6 @@ int main(int argc, char* argv[])
 	//Do not draw faces if there is already something there
 	glEnable(GL_DEPTH_TEST);
 
-	//Declare objects
-	unsigned int VAO, VBO, EBO;
-
-	//Create a vertex array object on the GPU
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	//Create one vertex buffer object on the GPU by sending the data from the CPU to the GPU
-	//Bind the VBO to the buffer type of GL_ARRAY_BUFFER
-	//Copy the vertex data into the current buffer's memory by setting the data and using it many times
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	//Create an element buffer array on the GPU, and bind the EBO by copying the faces into the buffer of type element array buffer
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
-
-	//Tell OpenGL how to interpret the vertex buffer data and store it in the current vertex array object
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
 	Shader defaultShader;
 	defaultShader.load("Shaders/default.vert", "Shaders/default.frag");
 	defaultShader.activate();
@@ -110,19 +84,12 @@ int main(int argc, char* argv[])
 		//Clear the depth buffer bit
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, (sizeof(faces) / sizeof(*faces)) + (sizeof(vertices) / sizeof(*vertices)), GL_UNSIGNED_INT, 0);
-		//Disable the VAO
-		glBindVertexArray(0);
+		//Render Here
 
 		//Update the window with OpenGL rendering by swapping the back buffer with the front buffer.
 		//The front buffer contains the final image to draw to the window while the back buffer renders everything.
 		SDL_GL_SwapWindow(window);
 	}
-
-	//Deallocate memory for vertex array and buffer objects and the shader program
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
 
 	//If the window is closed, clean up and exit SDL2
 	SDL_DestroyWindow(window);
