@@ -1,57 +1,49 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <glm/glm.hpp>
 #include <glad/glad.h>
+#include <vector>
+
+#include "Shader.h"
 
 struct Vertex3D {
-	float_t x;
-	float_t y;
-	float_t z;
+	glm::vec3 position;
+	glm::vec3 normal;
+	glm::vec2 texCoords;
 
-	float_t u;
-	float_t v;
+	Vertex3D(glm::vec3 pos, glm::vec3 norm, glm::vec2 tex)
+		: position(pos), normal(norm), texCoords(tex) {}
+};
 
-	Vertex3D(float_t a, float_t b, float_t c, float_t tu, float_t tv) 
-		: x(a), y(b), z(c), u(tu), v(tv) {}
+struct Map {
+	uint32_t id;
+	SDL_Surface* texture;
+	std::string type;
+	std::string path;
 };
 
 class Mesh3D {
 private:
 	uint32_t m_vao;
-	std::vector<uint32_t> m_textures;
-	uint32_t m_activeTexture;
-	int m_textureIndex = 0;
-	size_t m_vertexCount;
-	size_t m_faceCount;
+	uint32_t m_vbo;
+	uint32_t m_ebo;
 
 public:
+	std::vector<Vertex3D> m_vertices;
+	std::vector<uint32_t> m_faces;
+	std::vector<Map> m_maps;
+
 	Mesh3D() = delete;
 
-	
 	/**
 	 * @brief Construcst a Mesh3D using existing vectors of vertices and faces.
 	*/
-	Mesh3D(const std::vector<Vertex3D>& vertices, const std::vector<uint32_t>& faces, 
-		const sf::Image& texture);
-
-	/**
-	 * @brief Constructs a 1x1 square centered at the origin in world space.
-	*/
-	static Mesh3D square(const sf::Image& texture);
-	/**
-	 * @brief Constructs a 1x1x1 cube centered at the origin in world space.
-	*/
-	static Mesh3D cube(const sf::Image& texture);
-	/**
-	 * @brief Constructs the upper-left half of the 1x1 square centered at the origin.
-	*/
-	static Mesh3D triangle(const sf::Image& texture);
+	Mesh3D(const std::vector<Vertex3D>& vertices, const std::vector<uint32_t>& faces, const std::vector<Map>& maps);
 
 	/**
 	 * @brief Renders the mesh to the given context.
 	 */
-	void render(sf::RenderWindow& window);
-	
-	void addTexture(sf::Image texture);
-	void cycleTexture();
+	void render(Shader& shader);
+
 };

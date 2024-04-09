@@ -1,8 +1,11 @@
 #pragma once
 #include <memory>
-#include <SFML/Graphics/Transform.hpp>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+
 #include "Shader.h"
 #include "Mesh3D.h"
+
 class Object3D {
 private:
 	// The object's mesh.
@@ -43,8 +46,5 @@ public:
 	void grow(const glm::vec3& growth);
 
 	// Rendering.
-	void render(sf::RenderWindow& window, Shader& shader) const;
-
-	void addTex(sf::Image texture);
-	void cycleTex();
+	void render(Shader& shader) const;
 };

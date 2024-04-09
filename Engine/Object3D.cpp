@@ -1,5 +1,6 @@
-#include <SFML/Graphics/Transform.hpp>
+#include <SDL2/SDL.h>
 #include <glm/ext.hpp>
+
 #include "Object3D.h"
 #include "Shader.h"
 
@@ -58,17 +59,7 @@ void Object3D::grow(const glm::vec3& growth) {
 	rebuildModelMatrix();
 }
 
-void Object3D::render(sf::RenderWindow& window, Shader& shader) const {
+void Object3D::render(Shader& shader) const {
 	shader.setUniform("model", m_modelMatrix);
-	m_mesh->render(window);
-}
-
-void Object3D::addTex(sf::Image texture)
-{
-	m_mesh->addTexture(texture);
-}
-
-void Object3D::cycleTex()
-{
-	m_mesh->cycleTexture();
+	m_mesh->render(shader);
 }

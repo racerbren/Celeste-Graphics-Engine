@@ -1,6 +1,7 @@
-#version 410
+#version 330
 layout (location=0) in vec3 vPosition;
-layout (location=1) in vec2 vTexCoord;
+layout (location=1) in vec3 vNormal;
+layout (location=2) in vec2 vTexCoord;
 
 uniform mat4 projection;
 uniform mat4 view;
