@@ -26,6 +26,10 @@ int main(int argc, char* argv[])
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
 
+	//MSAA
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
+
 	//Create a window and event handler for SDL2. The window is given a OpenGL flag for rendering with OpenGL context
 	SDL_Window* window = SDL_CreateWindow("test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
 	SDL_Event event;
@@ -46,6 +50,8 @@ int main(int argc, char* argv[])
 
 	//Do not draw faces if there is already something there
 	glEnable(GL_DEPTH_TEST);
+	//Enable MSAA
+	glEnable(GL_MULTISAMPLE);
 
 	auto bunny = assimpLoad("resources/bunny_textured.obj", true, false, false);
 	bunny.move(glm::vec3(0.2, -1, -5));
