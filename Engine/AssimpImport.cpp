@@ -55,49 +55,61 @@ Object3D assimpLoad(const std::string& path, bool flipTextureCoords, bool genNor
 	else {
 
 	}
-	auto* mesh = scene->mMeshes[0];
-	Map map;
-	std::vector<Map> maps;
-	uint32_t ID;
-	glGenTextures(1, &ID);
 
-	if (mesh->mMaterialIndex >= 0)
+	std::vector<Object3D> meshes;
+	std::cout << scene->mNumMeshes << "\n";
+
+	for (int i = 0; i < scene->mNumMeshes; i++)
 	{
-		// Locate the "diffuse map" of the mesh, which is the mesh's primary texture.
-		auto* material = scene->mMaterials[mesh->mMaterialIndex];
-		aiString name;
-		material->Get(AI_MATKEY_NAME, name);
-		material->GetTexture(aiTextureType_DIFFUSE, 0, &name);
+		auto* mesh = scene->mMeshes[i];
+		Map map;
+		std::vector<Map> maps;
+		uint32_t ID;
+		glGenTextures(1, &ID);
 
-		// Locate and load the texture image into RAM.
-		std::filesystem::path modelPath = path;
-		std::filesystem::path texPath = modelPath.parent_path() / name.C_Str();
+		if (mesh->mMaterialIndex >= 0)
+		{
+			// Locate the "diffuse map" of the mesh, which is the mesh's primary texture.
+			auto* material = scene->mMaterials[mesh->mMaterialIndex];
+			aiString name;
+			material->Get(AI_MATKEY_NAME, name);
+			material->GetTexture(aiTextureType_DIFFUSE, 0, &name);
 
-		map.id = ID;
-		map.path = texPath.string();
-		map.type = "diffuse";
-		map.texture = IMG_Load(texPath.string().c_str());
+			// Locate and load the texture image into RAM.
+			std::filesystem::path modelPath = path;
+			std::filesystem::path texPath = modelPath.parent_path() / name.C_Str();
+
+			map.id = ID;
+			map.path = texPath.string();
+			map.type = "diffuse";
+			map.texture = IMG_Load(texPath.string().c_str());
+			if (!map.texture)
+				std::cout << "failed to load diffuse map" << SDL_GetError() << "\n";
+			else
+				std::cout << "loaded diffuse map successfully" << "\n";
+
+			maps.push_back(map);
+		}
+
 		if (!map.texture)
-			std::cout << "failed to load diffuse map" << SDL_GetError() << "\n";
-		else
-			std::cout << "loaded diffuse map successfully";
+		{
+			map.id = ID;
+			map.path = "resources/error.jpg";
+			map.type = "texture";
+			map.texture = IMG_Load(map.path.c_str());
+			if (!map.texture)
+				std::cout << "failed to load texture" << SDL_GetError() << "\n";
+			else
+				std::cout << "loaded texture successfully" << "\n";
 
-		maps.push_back(map);
+			maps.push_back(map);
+		}
+		auto obj = Object3D(std::make_shared<Mesh3D>(fromAssimpMesh(scene->mMeshes[i], maps)));
+		meshes.push_back(obj);
 	}
-
-	if (!map.texture)
+	for (int i = 1; i < meshes.size(); i++)
 	{
-		map.id = ID;
-		map.path = "resources/error.jpg";
-		map.type = "texture";
-		map.texture = IMG_Load(map.path.c_str());
-		if (!map.texture)
-			std::cout << "failed to load texture" << SDL_GetError() << "\n";
-		else
-			std::cout << "loaded texture successfully";
-
-		maps.push_back(map);
-	}	
-	auto ret = Object3D(std::make_shared<Mesh3D>(fromAssimpMesh(scene->mMeshes[0], maps)));
-	return ret;
+		meshes[0].addChild(meshes[i]);
+	}
+	return meshes[0];
 }

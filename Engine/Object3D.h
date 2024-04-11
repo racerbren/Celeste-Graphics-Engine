@@ -19,10 +19,10 @@ private:
 	// The object's cached local->world transformation matrix.
 	glm::mat4 m_modelMatrix;
 
-
 	// Recomputes the local->world transformation matrix.
 	void rebuildModelMatrix();
 
+	std::vector<Object3D> m_children;
 
 public:
 	// No default constructor; you must have a mesh to initialize an object.
@@ -45,6 +45,9 @@ public:
 	void rotate(const glm::vec3& rotation);
 	void grow(const glm::vec3& growth);
 
+	void addChild(Object3D child);
+
 	// Rendering.
 	void render(Shader& shader) const;
+	void renderRecursive(Shader& shader, const glm::mat4& parentMatrix) const;
 };
