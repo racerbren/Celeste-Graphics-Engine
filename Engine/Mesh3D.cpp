@@ -71,6 +71,9 @@ void Mesh3D::render(Shader& shader) {
 	glBindVertexArray(m_vao);
 	glBindTexture(GL_TEXTURE_2D, m_maps[0].id);
 
+	//Activate the mesh's shader
+	shader.activate();
+
 	// Draw the vertex array, using its "element buffer" to identify the faces.
 	glDrawElements(GL_TRIANGLES, m_faces.size(), GL_UNSIGNED_INT, nullptr);
 

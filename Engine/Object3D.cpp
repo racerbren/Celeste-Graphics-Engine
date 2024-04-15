@@ -52,6 +52,13 @@ void Object3D::setScale(const glm::vec3& scale)
 	rebuildModelMatrix();
 }
 
+void Object3D::setMaterial(const glm::vec4& material)
+{
+	m_material = material;
+	for (auto& child : m_children)
+		child.setMaterial(material);
+}
+
 void Object3D::move(const glm::vec3& offset) 
 {
 	m_position = m_position + offset;
@@ -84,6 +91,7 @@ void Object3D::renderRecursive(Shader& shader, const glm::mat4& parentMatrix) co
 {
 	glm::mat4 trueModel = parentMatrix * m_modelMatrix;
 	shader.setUniform("model", trueModel);
+	shader.setUniform("material", m_material);
 	m_mesh->render(shader);
 
 	for (auto& child : m_children) {

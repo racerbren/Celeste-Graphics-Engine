@@ -22,7 +22,11 @@ private:
 	// Recomputes the local->world transformation matrix.
 	void rebuildModelMatrix();
 
+	//Other meshes in the object if any
 	std::vector<Object3D> m_children;
+
+	//This object's material
+	glm::vec4 m_material = glm::vec4(0, 0, 0, 0);
 
 public:
 	// No default constructor; you must have a mesh to initialize an object.
@@ -39,6 +43,7 @@ public:
 	void setPosition(const glm::vec3& position);
 	void setOrientation(const glm::vec3& orientation);
 	void setScale(const glm::vec3& scale);
+	void setMaterial(const glm::vec4& material);
 	
 	// Transformations.
 	void move(const glm::vec3& offset);

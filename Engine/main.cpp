@@ -115,10 +115,12 @@ int main(int argc, char* argv[])
 	SDL_Event event;
 
 	auto skull = assimpLoad("resources/12140_Skull_v3_L2.obj", true, false, false);
+	skull.setMaterial(glm::vec4(0.1, 0.8, 0.3, 16));
 	skull.move(glm::vec3(0, -15, -40));
 	skull.rotate(glm::vec3(-90, 0, 0));
 
 	auto bunny = assimpLoad("resources/bunny_textured.obj", true, false, false);
+	bunny.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
 	bunny.move(glm::vec3(0.2, -1, -5));
 	bunny.grow(glm::vec3(9, 9, -9));
 
@@ -134,6 +136,9 @@ int main(int argc, char* argv[])
 	glm::mat4 perspective = glm::perspective(glm::radians(45.0), static_cast<double>(*wide) / *tall, 0.1, 100.0);
 	defaultShader.setUniform("view", camera);
 	defaultShader.setUniform("projection", perspective);
+	defaultShader.setUniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
+	defaultShader.setUniform("lightPos", glm::vec3(0.0, 0.0, 0.0));
+	defaultShader.setUniform("viewPos", cameraPos);
 
 	//main loop runs until window is closed
 	bool destroyed = false;
@@ -154,6 +159,7 @@ int main(int argc, char* argv[])
 		}
 		camera = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		defaultShader.setUniform("view", camera);
+		defaultShader.setUniform("viewPos", cameraPos);
 
 		//Clear the depth buffer bit
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -161,7 +167,6 @@ int main(int argc, char* argv[])
 		//Render Here
 		skull.render(defaultShader);
 		bunny.render(defaultShader);
-		//bunny.rotate(glm::vec3(0, 0.003, 0));
 
 		//Update the window with OpenGL rendering by swapping the back buffer with the front buffer.
 		//The front buffer contains the final image to draw to the window while the back buffer renders everything.
