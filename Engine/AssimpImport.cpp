@@ -64,34 +64,22 @@ Object3D assimpLoad(const std::string& path, bool flipTextureCoords, bool genNor
 		auto* mesh = scene->mMeshes[i];
 		Map map;
 		std::vector<Map> maps;
-		uint32_t ID;
-		glGenTextures(1, &ID);
 
 		if (mesh->mMaterialIndex >= 0)
 		{
 			// Locate the "diffuse map" of the mesh, which is the mesh's primary texture.
 			auto* material = scene->mMaterials[mesh->mMaterialIndex];
-			aiString name;
-			material->Get(AI_MATKEY_NAME, name);
-			material->GetTexture(aiTextureType_DIFFUSE, 0, &name);
-
-			// Locate and load the texture image into RAM.
-			std::filesystem::path modelPath = path;
-			std::filesystem::path texPath = modelPath.parent_path() / name.C_Str();
-
-			map.id = ID;
-			map.path = texPath.string();
-			map.type = "diffuse";
-			map.texture = IMG_Load(texPath.string().c_str());
-			if (!map.texture)
-				std::cout << "failed to load diffuse map" << SDL_GetError() << "\n";
-			else
-				std::cout << "loaded diffuse map successfully" << "\n";
-
+			
+			std::vector<Map> diffuseMaps = loadLightingMaps(material, aiTextureType_DIFFUSE, "diffuse", path);
+			maps.insert(maps.end(), diffuseMaps.begin(), diffuseMaps.end());
+			
+			std::vector<Map> specularMaps = loadLightingMaps(material, aiTextureType_SPECULAR, "specular", path);
+			maps.insert(maps.end(), specularMaps.begin(), specularMaps.end());
+			
 			maps.push_back(map);
 		}
 
-		if (!map.texture)
+		/*if (!map.texture)
 		{
 			map.id = ID;
 			map.path = "resources/error.jpg";
@@ -103,7 +91,7 @@ Object3D assimpLoad(const std::string& path, bool flipTextureCoords, bool genNor
 				std::cout << "loaded texture successfully" << "\n";
 
 			maps.push_back(map);
-		}
+		}*/
 		auto obj = Object3D(std::make_shared<Mesh3D>(fromAssimpMesh(scene->mMeshes[i], maps)));
 		meshes.push_back(obj);
 	}
@@ -112,4 +100,29 @@ Object3D assimpLoad(const std::string& path, bool flipTextureCoords, bool genNor
 		meshes[0].addChild(meshes[i]);
 	}
 	return meshes[0];
+}
+
+std::vector<Map> loadLightingMaps(aiMaterial* mat, aiTextureType type, std::string typeName, const std::string path)
+{
+	std::vector<Map> maps;
+	for (int i = 0; i < mat->GetTextureCount(type); i++)
+	{
+		aiString str;
+		mat->Get(AI_MATKEY_NAME, str);
+		mat->GetTexture(type, i, &str);
+		Map map;
+		uint32_t ID;
+		glGenTextures(1, &ID);
+
+		// Locate and load the texture image into RAM.
+		std::filesystem::path modelPath = path;
+		std::filesystem::path texPath = modelPath.parent_path() / str.C_Str();
+
+		map.id = ID;
+		map.path = texPath.string();
+		map.type = typeName;
+		map.texture = IMG_Load(texPath.string().c_str());
+		maps.push_back(map);
+	}
+	return maps;
 }

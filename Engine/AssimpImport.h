@@ -7,3 +7,4 @@
 
 Mesh3D fromAssimpMesh(const aiMesh* mesh, const std::vector<Map> maps);
 Object3D assimpLoad(const std::string& path, bool flipTextureCoords, bool genNormals, bool genUV);
+std::vector<Map> loadLightingMaps(aiMaterial* mat, aiTextureType type, std::string typeName, const std::string path);
