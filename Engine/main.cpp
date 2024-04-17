@@ -73,7 +73,7 @@ void init()
 {
 	//Initialize SDL2 library and set OpenGL version 3.30
 	SDL_Init(SDL_INIT_EVERYTHING);
-	IMG_Init(IMG_INIT_JPG);
+	IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -124,6 +124,12 @@ int main(int argc, char* argv[])
 	bunny.move(glm::vec3(0.2, -1, -5));
 	bunny.grow(glm::vec3(9, 9, -9));
 
+	auto tree = assimpLoad("resources/10446_Palm_Tree_v1_L3.123c0a37e64c-4659-4136-a23d-059cbcde3ecd/10446_Palm_Tree_v1_max2010_iteration-2.obj", true, false, false);
+	tree.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
+	tree.move(glm::vec3(0, 0, 0));
+	tree.grow(glm::vec3(0.01, 0.01, 0.01));
+	tree.rotate(glm::vec3(90, 90, 90));
+
 	Shader defaultShader;
 	defaultShader.load("Shaders/default.vert", "Shaders/default.frag");
 	defaultShader.activate();
@@ -167,6 +173,7 @@ int main(int argc, char* argv[])
 		//Render Here
 		skull.render(defaultShader);
 		bunny.render(defaultShader);
+		tree.render(defaultShader);
 
 		//Update the window with OpenGL rendering by swapping the back buffer with the front buffer.
 		//The front buffer contains the final image to draw to the window while the back buffer renders everything.

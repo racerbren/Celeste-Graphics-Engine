@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Animator.cpp" />
     <ClCompile Include="AssimpImport.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
@@ -151,10 +152,14 @@
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="Animator.h" />
     <ClInclude Include="AssimpImport.h" />
     <ClInclude Include="Mesh3D.h" />
     <ClInclude Include="Object3D.h" />
+    <ClInclude Include="RotationAnimation.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="TranslationAnimation.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\default.frag" />

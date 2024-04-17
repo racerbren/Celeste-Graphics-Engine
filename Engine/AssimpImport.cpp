@@ -16,7 +16,6 @@ Mesh3D fromAssimpMesh(const aiMesh* mesh, const std::vector<Map> maps)
 		auto vertex = Vertex3D(glm::vec3(meshVertex.x, meshVertex.y, meshVertex.z), glm::vec3(meshNormal.x, meshNormal.y, meshNormal.z), glm::vec2(texCoord.x, texCoord.y));
 		vertices.push_back(vertex);
 	}
-
 	std::vector<uint32_t> faces;
 	// Construct the faces of the mesh
 	for (size_t i = 0; i < mesh->mNumFaces; i++) {
@@ -25,7 +24,6 @@ Mesh3D fromAssimpMesh(const aiMesh* mesh, const std::vector<Map> maps)
 		faces.push_back(meshFace.mIndices[1]);
 		faces.push_back(meshFace.mIndices[2]);
 	}
-
 	return Mesh3D(vertices, faces, maps);
 }
 
@@ -59,10 +57,9 @@ Object3D assimpLoad(const std::string& path, bool flipTextureCoords, bool genNor
 	std::vector<Object3D> meshes;
 	std::cout << scene->mNumMeshes << "\n";
 
-	for (int i = 0; i < scene->mNumMeshes; i++)
+	for (uint32_t i = 0; i < scene->mNumMeshes; i++)
 	{
 		auto* mesh = scene->mMeshes[i];
-		Map map;
 		std::vector<Map> maps;
 
 		if (mesh->mMaterialIndex >= 0)
@@ -75,8 +72,11 @@ Object3D assimpLoad(const std::string& path, bool flipTextureCoords, bool genNor
 			
 			std::vector<Map> specularMaps = loadLightingMaps(material, aiTextureType_SPECULAR, "specular", path);
 			maps.insert(maps.end(), specularMaps.begin(), specularMaps.end());
-			
-			maps.push_back(map);
+
+			std::vector<Map> normalMaps = loadLightingMaps(material, aiTextureType_NORMALS, "normal", path);
+			maps.insert(maps.end(), normalMaps.begin(), normalMaps.end());
+
+			std::cout << "maps: " << maps.size() << "\n";
 		}
 
 		/*if (!map.texture)
@@ -105,7 +105,7 @@ Object3D assimpLoad(const std::string& path, bool flipTextureCoords, bool genNor
 std::vector<Map> loadLightingMaps(aiMaterial* mat, aiTextureType type, std::string typeName, const std::string path)
 {
 	std::vector<Map> maps;
-	for (int i = 0; i < mat->GetTextureCount(type); i++)
+	for (uint32_t i = 0; i < mat->GetTextureCount(type); i++)
 	{
 		aiString str;
 		mat->Get(AI_MATKEY_NAME, str);
