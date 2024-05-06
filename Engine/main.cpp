@@ -7,6 +7,7 @@
 #include "Object3D.h"
 #include "Mesh3D.h"
 #include "AssimpImport.h"
+#include "Animator.h"
 
 #undef main
 
@@ -138,13 +139,23 @@ int main(int argc, char* argv[])
 	int* tall = &height;
 	SDL_GetWindowSize(window, wide, tall);
 
+	//Set up view and projection matrices for vertex shader
 	glm::mat4 camera = glm::lookAt(cameraPos, cameraFront, cameraUp);
 	glm::mat4 perspective = glm::perspective(glm::radians(45.0), static_cast<double>(*wide) / *tall, 0.1, 100.0);
 	defaultShader.setUniform("view", camera);
 	defaultShader.setUniform("projection", perspective);
-	defaultShader.setUniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
-	defaultShader.setUniform("lightPos", glm::vec3(0.0, 0.0, 0.0));
 	defaultShader.setUniform("viewPos", cameraPos);
+
+	//Set directional light
+	defaultShader.setUniform("dirLight.direction", glm::vec3(0, -1, 0));
+
+	//Set point light
+	defaultShader.setUniform("pointLights[0].position", glm::vec3(0, 0, 0));
+	defaultShader.setUniform("pointLights[0].linear", 0.09f);
+	defaultShader.setUniform("pointLights[0].quadratic", 0.032f);
+
+	Animator animator;
+
 
 	//main loop runs until window is closed
 	bool destroyed = false;
