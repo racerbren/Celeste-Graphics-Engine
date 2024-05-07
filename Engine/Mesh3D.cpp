@@ -77,6 +77,9 @@ void Mesh3D::render(Shader& shader) {
 	// Draw the vertex array, using its "element buffer" to identify the faces.
 	glDrawElements(GL_TRIANGLES, m_faces.size(), GL_UNSIGNED_INT, nullptr);
 
+	//Disable the mesh's shader
+	shader.disable();
+
 	// Deactivate the mesh's vertex array and texture.
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);

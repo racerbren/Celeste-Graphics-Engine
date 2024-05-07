@@ -18,6 +18,7 @@ public:
 
 	void load(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 	void activate();
+	void disable();
 
 	void setUniform(const std::string& uniformName, bool value);
 	void setUniform(const std::string& uniformName, int32_t value);

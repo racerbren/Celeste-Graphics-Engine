@@ -71,6 +71,11 @@ void Shader::activate()
 	glUseProgram(m_programID);
 }
 
+void Shader::disable()
+{
+    glUseProgram(0);
+}
+
 void Shader::setUniform(const std::string& uniformName, bool value)
 {
 	glUniform1i(glGetUniformLocation(m_programID, uniformName.c_str()), (int32_t)value);

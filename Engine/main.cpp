@@ -118,12 +118,12 @@ int main(int argc, char* argv[])
 	//Reference the skybox images
 	std::vector<std::string> faces =
 	{
-		"resources/skybox/right.png",
-		"resources/skybox/left.png",
-		"resources/skybox/top.png",
-		"resources/skybox/bottom.png",
-		"resources/skybox/front.png",
-		"resources/skybox/back.png"
+		"resources/skybox/right.jpg",
+		"resources/skybox/left.jpg",
+		"resources/skybox/top.jpg",
+		"resources/skybox/bottom.jpg",
+		"resources/skybox/front.jpg",
+		"resources/skybox/back.jpg"
 	};
 	//Load the skybox and hold onto the id associated with the texture image
 	Skybox defaultSkybox(faces);
@@ -134,10 +134,11 @@ int main(int argc, char* argv[])
 
 	Shader defaultShader;
 	defaultShader.load("Shaders/default.vert", "Shaders/default.frag");
-	defaultShader.activate();
 
 	Shader skyboxShader;
+	skyboxShader.load("Shaders/skybox.vert", "Shaders/skybox.frag");
 	
+	//Get the size of the window for setting the perspective matrix
 	int* wide = &width;
 	int* tall = &height;
 	SDL_GetWindowSize(window, wide, tall);
@@ -148,6 +149,9 @@ int main(int argc, char* argv[])
 	defaultShader.setUniform("view", camera);
 	defaultShader.setUniform("projection", perspective);
 	defaultShader.setUniform("viewPos", cameraPos);
+	//Skybox shader
+	skyboxShader.setUniform("view", camera);
+	skyboxShader.setUniform("projection", perspective);
 
 	//Set directional light
 	defaultShader.setUniform("dirLight.direction", glm::vec3(0, -1, 0));
@@ -183,8 +187,25 @@ int main(int argc, char* argv[])
 		//Clear the depth buffer bit
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		glm::mat4 view = glm::mat4(glm::mat3(camera));
+
 		//Render Here
+		skyboxShader.activate();
+		skyboxShader.setUniform("view", view);
+		skyboxShader.setUniform("projection", perspective);
+		defaultSkybox.render(skyboxShader);
+		skyboxShader.disable();
+
+		defaultShader.activate();
+		defaultShader.setUniform("view", camera);
+		defaultShader.setUniform("projection", perspective);
+		defaultShader.setUniform("viewPos", cameraPos);
+		defaultShader.setUniform("dirLight.direction", glm::vec3(0, -1, 0));
+		defaultShader.setUniform("pointLights[0].position", glm::vec3(0, 0, 0));
+		defaultShader.setUniform("pointLights[0].linear", 0.7f);
+		defaultShader.setUniform("pointLights[0].quadratic", 1.8f);
 		island.render(defaultShader);
+		defaultShader.disable();
 
 		//Update the window with OpenGL rendering by swapping the back buffer with the front buffer.
 		//The front buffer contains the final image to draw to the window while the back buffer renders everything.

@@ -19,6 +19,7 @@ struct PointLight
 {
     vec3 position;
 
+    //Floats used for attenuation
     float linear;
     float quadratic;
 };
