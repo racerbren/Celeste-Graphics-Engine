@@ -29,6 +29,43 @@ float lastY = height / 2;
 float yaw = -90.0f;
 float pitch = 0.0f;
 
+unsigned int loadSkyBox(std::vector<std::string> faces)
+{
+	//Generate and bind skybox to gl cube map as you would any other texture
+	unsigned int id;
+	glGenTextures(1, &id);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+
+	int width, height, mode;
+	SDL_Surface* image;
+	for (int i = 0; i < faces.size(); i++)
+	{
+		//Load the texture image
+		image = IMG_Load(faces[i].c_str());
+
+		//Determine the mode for the texture image by its format
+		mode = GL_RGB;
+		if (image->format->BytesPerPixel == 4)
+			mode = GL_RGBA;
+
+		//Determine the width and height of the texture image
+		width = image->w;
+		height = image->h;
+		
+		//Generate the texture image for the current cube map texture object
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, mode, width, height, 0, mode, GL_UNSIGNED_BYTE, image->pixels);
+	}
+
+	//Specify texture wrapping for cube map
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	return id;
+}
+
 void mouseCallback(SDL_Window* window, double x, double y, SDL_Event event)
 {
 	float sensitivity = 0.1f;
