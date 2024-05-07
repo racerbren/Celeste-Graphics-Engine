@@ -115,21 +115,9 @@ int main(int argc, char* argv[])
 	//Create an event handler for SDL2
 	SDL_Event event;
 
-	auto skull = assimpLoad("resources/12140_Skull_v3_L2.obj", true, false, false);
-	skull.setMaterial(glm::vec4(0.1, 0.8, 0.3, 16));
-	skull.move(glm::vec3(0, -15, -40));
-	skull.rotate(glm::vec3(-90, 0, 0));
-
-	auto bunny = assimpLoad("resources/bunny_textured.obj", true, false, false);
-	bunny.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
-	bunny.move(glm::vec3(0.2, -1, -5));
-	bunny.grow(glm::vec3(9, 9, -9));
-
-	auto tree = assimpLoad("resources/10446_Palm_Tree_v1_L3.123c0a37e64c-4659-4136-a23d-059cbcde3ecd/10446_Palm_Tree_v1_max2010_iteration-2.obj", true, false, false);
-	tree.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
-	tree.move(glm::vec3(0, 0, 0));
-	tree.grow(glm::vec3(0.01, 0.01, 0.01));
-	tree.rotate(glm::vec3(90, 90, 90));
+	auto island = assimpLoad("resources/island/island.obj", true, false, false);
+	island.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
+	island.move(glm::vec3(0, -3, 0));
 
 	Shader defaultShader;
 	defaultShader.load("Shaders/default.vert", "Shaders/default.frag");
@@ -151,11 +139,10 @@ int main(int argc, char* argv[])
 
 	//Set point light
 	defaultShader.setUniform("pointLights[0].position", glm::vec3(0, 0, 0));
-	defaultShader.setUniform("pointLights[0].linear", 0.09f);
-	defaultShader.setUniform("pointLights[0].quadratic", 0.032f);
+	defaultShader.setUniform("pointLights[0].linear", 0.7f);
+	defaultShader.setUniform("pointLights[0].quadratic", 1.8f);
 
 	Animator animator;
-
 
 	//main loop runs until window is closed
 	bool destroyed = false;
@@ -182,9 +169,7 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//Render Here
-		skull.render(defaultShader);
-		bunny.render(defaultShader);
-		tree.render(defaultShader);
+		island.render(defaultShader);
 
 		//Update the window with OpenGL rendering by swapping the back buffer with the front buffer.
 		//The front buffer contains the final image to draw to the window while the back buffer renders everything.

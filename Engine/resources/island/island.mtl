@@ -1,0 +1,43 @@
+# Blender 3.6.2 MTL File: 'None'
+# www.blender.org
+
+newmtl 10446_Palm_Tree_v1
+Ns 10.000005
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd C:/Users/Brenden/source/repos/Celeste Graphics Engine/Engine/resources/10446_Palm_Tree_v1_L3.123c0a37e64c-4659-4136-a23d-059cbcde3ecd/10446_Palm_Tree_v1_Diffuse.jpg
+
+newmtl Material.001
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd -s 5 5 5 C:/Users/Brenden/Downloads/drive-download-20240507T194049Z-001/Sand_005_baseColor.jpg
+
+newmtl Material.002
+Ns 13.725493
+Ka 1.000000 1.000000 1.000000
+Ks 0.007937 0.007937 0.007937
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Users/Brenden/Downloads/1elmla01hh-Rock1_BYTyroSmith/Rock1/Rock-Texture-Surface.jpg
+
+newmtl initialShadingGroup
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:/Users/Brenden/Downloads/bonfire/uploads_files_795054_Camp+Fire_initialShadingGroup_AlbedoTransparency.png
+map_Ks C:/Users/Brenden/Downloads/bonfire/uploads_files_795054_Camp+Fire_initialShadingGroup_SpecularSmoothness.png
+map_Bump -bm 1.000000 C:/Users/Brenden/Downloads/bonfire/uploads_files_795054_Camp+Fire_initialShadingGroup_Normal.png
