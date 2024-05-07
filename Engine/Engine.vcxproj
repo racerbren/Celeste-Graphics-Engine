@@ -150,6 +150,7 @@
     <ClCompile Include="Mesh3D.cpp" />
     <ClCompile Include="Object3D.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Skybox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Object3D.h" />
     <ClInclude Include="RotationAnimation.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="TranslationAnimation.h" />
   </ItemGroup>
   <ItemGroup>

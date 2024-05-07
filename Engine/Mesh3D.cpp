@@ -28,7 +28,7 @@ Mesh3D::Mesh3D(const std::vector<Vertex3D>& vertices, const std::vector<uint32_t
 	// Copy the contents of the vertices list to the buffer that lives on the GPU.
 	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex3D), &m_vertices[0], GL_STATIC_DRAW);
 	
-	// Inform OpenGL how to interpret the buffer. Each vertex now has TWO attributes; a position and a color.
+	// Inform OpenGL how to interpret the buffer. Each vertex now has 3 attributes; a position, a normal, and a texture.
 	// Atrribute 0 is position: 3 contiguous floats (x/y/z)...
 	glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vertex3D), 0);
 	glEnableVertexAttribArray(0);
