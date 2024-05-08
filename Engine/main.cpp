@@ -190,12 +190,6 @@ int main(int argc, char* argv[])
 		glm::mat4 view = glm::mat4(glm::mat3(camera));
 
 		//Render Here
-		skyboxShader.activate();
-		skyboxShader.setUniform("view", view);
-		skyboxShader.setUniform("projection", perspective);
-		defaultSkybox.render(skyboxShader);
-		skyboxShader.disable();
-
 		defaultShader.activate();
 		defaultShader.setUniform("view", camera);
 		defaultShader.setUniform("projection", perspective);
@@ -206,6 +200,17 @@ int main(int argc, char* argv[])
 		defaultShader.setUniform("pointLights[0].quadratic", 1.8f);
 		island.render(defaultShader);
 		defaultShader.disable();
+
+		//Render skybox last so fragments behind other objects are not rendered
+		//Change depth function because depth buffer will be filled with 1.0 for the skybox and we want to check if the depth values equal the skybox
+		glDepthFunc(GL_LEQUAL);
+		skyboxShader.activate();
+		skyboxShader.setUniform("view", view);
+		skyboxShader.setUniform("projection", perspective);
+		defaultSkybox.render(skyboxShader);
+		skyboxShader.disable();
+		//Set the depth function back to default
+		glDepthFunc(GL_LESS);
 
 		//Update the window with OpenGL rendering by swapping the back buffer with the front buffer.
 		//The front buffer contains the final image to draw to the window while the back buffer renders everything.

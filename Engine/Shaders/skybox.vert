@@ -10,5 +10,6 @@ void main()
 {
 	//Set incoming position vectors of the cube vertices to be the texture coordinates for interpolated use in the fragment shader
 	TexCoords = aPos;
-	gl_Position = projection * view * vec4(aPos, 1.0);
+	vec4 pos = projection * view * vec4(aPos, 1.0);
+	gl_Position = pos.xyww;
 }
