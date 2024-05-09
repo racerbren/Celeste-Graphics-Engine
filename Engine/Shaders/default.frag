@@ -5,8 +5,10 @@ layout (location=0) out vec4 FragColor;
 in vec3 Normal;
 in vec2 TexCoord;
 in vec3 FragPos;
+in vec4 FragPosLightSpace;
   
 uniform sampler2D ourTexture;
+uniform sampler2D shadowMap;
 uniform vec3 viewPos;
 
 struct DirectionalLight
@@ -31,6 +33,7 @@ uniform vec4 material;
 
 vec4 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDirection);
 vec4 calculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDirection);
+float calculateShadows(vec4 fragPosLightSpace);
 
 void main() 
 {
@@ -67,9 +70,12 @@ vec4 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir
     vec3 ambient = vec3(1.0, 1.0, 1.0) * material.x;
     vec3 diffuse = vec3(1.0, 1.0, 1.0) * material.y * diff;
     vec3 specular = vec3(1.0, 1.0, 1.0) * material.z * spec;
+
+    //Calculate shadows for directional light
+    float shadows = calculateShadows(FragPosLightSpace);
     
     //Return effects of directional light
-    return vec4((ambient + diffuse + specular), 1.0);
+    return vec4((ambient + (1.0 - shadows) * (diffuse + specular)), 1.0);
 }
 
 vec4 calculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDirection)
@@ -94,6 +100,29 @@ vec4 calculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewD
     vec3 diffuse = vec3(1.0, 1.0, 1.0) * material.y * diff * attenuation;
     vec3 specular = vec3(1.0, 1.0, 1.0) * material.z * spec * attenuation;
 
+    //Calculate shadows for directional light
+    float shadows = calculateShadows(FragPosLightSpace);
+
     //Return effects of point light
-    return vec4((ambient + diffuse + specular), 1.0);
+    return vec4((ambient + (1.0 - shadows) *  (diffuse + specular)), 1.0);
+}
+
+float calculateShadows(vec4 fragPosLightSpace)
+{
+    //Perspective divide light space fragment in clip space to projection coordinates
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+
+    //Transform projection coordinates to range [0, 1]
+    projCoords = projCoords * 0.5 + 0.5;
+
+    //Sample the shadow map to get the closest depth value to the light
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+
+    //Get the depth of this fragment by sampling the z coordinate of the projection
+    float currentDepth = projCoords.z;
+
+    //Check if the current depth or closest depth is closer
+    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+
+    return shadow;
 }

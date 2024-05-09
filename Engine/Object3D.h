@@ -53,6 +53,6 @@ public:
 	void addChild(Object3D child);
 
 	// Rendering.
-	void render(Shader& shader) const;
-	void renderRecursive(Shader& shader, const glm::mat4& parentMatrix) const;
+	void render(Shader& shader, uint32_t shadowMapID) const;
+	void renderRecursive(Shader& shader, const glm::mat4& parentMatrix, uint32_t shadowMapID) const;
 };

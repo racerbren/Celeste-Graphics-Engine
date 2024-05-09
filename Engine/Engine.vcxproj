@@ -164,6 +164,8 @@
     <ClInclude Include="TranslationAnimation.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\depthShader.frag" />
+    <None Include="Shaders\depthShader.vert" />
     <None Include="Shaders\default.frag" />
     <None Include="Shaders\default.vert" />
     <None Include="Shaders\skybox.vert" />

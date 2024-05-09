@@ -76,7 +76,7 @@ Object3D assimpLoad(const std::string& path, bool flipTextureCoords, bool genNor
 			std::vector<Map> normalMaps = loadLightingMaps(material, aiTextureType_NORMALS, "normal", path);
 			maps.insert(maps.end(), normalMaps.begin(), normalMaps.end());
 
-			std::cout << "maps: " << maps.size() << "\n";
+			std::cout << mesh->mName.C_Str() << " maps: " << maps.size() << "\n";
 		}
 
 		/*if (!map.texture)

@@ -29,6 +29,33 @@ float lastY = height / 2;
 float yaw = -90.0f;
 float pitch = 0.0f;
 
+void createShadowMap(uint32_t& fbo, uint32_t& id)
+{
+	//Create frame buffer object to represent shadow map
+	glGenFramebuffers(1, &fbo);
+
+	//Set the resolution of the shadow map to be 1024x1024
+	const uint32_t shadowWidth = 1024, shadowHeight = 1024;
+
+	//Create a texture for the shadow map to be drawn to
+	glGenTextures(1, &id);
+	glBindTexture(GL_TEXTURE_2D, id);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	//Attach the shadow map to the frame buffer
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, id, 0);
+
+	//Tell OpenGL not to render any color buffer and bind the frame buffer to 0
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void mouseCallback(SDL_Window* window, double x, double y, SDL_Event event)
 {
 	float sensitivity = 0.1f;
@@ -132,11 +159,19 @@ int main(int argc, char* argv[])
 	island.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
 	island.move(glm::vec3(0, -3, 0));
 
+	//Create the shadow map
+	uint32_t shadowMapFBO, shadowMapID;
+	createShadowMap(shadowMapFBO, shadowMapID);
+
 	Shader defaultShader;
 	defaultShader.load("Shaders/default.vert", "Shaders/default.frag");
+	defaultShader.setUniform("shadowMap", 1);
 
 	Shader skyboxShader;
 	skyboxShader.load("Shaders/skybox.vert", "Shaders/skybox.frag");
+
+	Shader simpleDepthShader;
+	simpleDepthShader.load("Shaders/depthShader.vert", "Shaders/depthShader.frag");
 	
 	//Get the size of the window for setting the perspective matrix
 	int* wide = &width;
@@ -187,9 +222,29 @@ int main(int argc, char* argv[])
 		//Clear the depth buffer bit
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//Model directional light source with parallel light rays
+		glm::mat4 lightProj, lightView, lightSpace;
+		float nearPlane = 1.0f, farPlane = 150.0f;
+		lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
+		lightView = glm::lookAt(glm::vec3(0, 30, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+		lightSpace = lightProj * lightView;
+
+		simpleDepthShader.activate();
+		simpleDepthShader.setUniform("lightSpaceMatrix", lightSpace);
+
+		glViewport(0, 0, 1024, 1024);
+		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		island.render(simpleDepthShader, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// reset viewport
+		glViewport(0, 0, width, height);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		glm::mat4 view = glm::mat4(glm::mat3(camera));
 
-		//Render Here
+		//Render scene objects with default shading
 		defaultShader.activate();
 		defaultShader.setUniform("view", camera);
 		defaultShader.setUniform("projection", perspective);
@@ -198,7 +253,7 @@ int main(int argc, char* argv[])
 		defaultShader.setUniform("pointLights[0].position", glm::vec3(0, 0, 0));
 		defaultShader.setUniform("pointLights[0].linear", 0.7f);
 		defaultShader.setUniform("pointLights[0].quadratic", 1.8f);
-		island.render(defaultShader);
+		island.render(defaultShader, shadowMapID);
 		defaultShader.disable();
 
 		//Render skybox last so fragments behind other objects are not rendered

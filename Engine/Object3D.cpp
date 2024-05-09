@@ -82,19 +82,19 @@ void Object3D::addChild(Object3D child)
 	m_children.push_back(child);
 }
 
-void Object3D::render(Shader& shader) const 
+void Object3D::render(Shader& shader, uint32_t shadowMapID) const
 {
-	renderRecursive(shader, glm::mat4(1));
+	renderRecursive(shader, glm::mat4(1), shadowMapID);
 }
 
-void Object3D::renderRecursive(Shader& shader, const glm::mat4& parentMatrix) const
+void Object3D::renderRecursive(Shader& shader, const glm::mat4& parentMatrix, uint32_t shadowMapID) const
 {
 	glm::mat4 trueModel = parentMatrix * m_modelMatrix;
 	shader.setUniform("model", trueModel);
 	shader.setUniform("material", m_material);
-	m_mesh->render(shader);
+	m_mesh->render(shader, shadowMapID);
 
 	for (auto& child : m_children) {
-		child.renderRecursive(shader, trueModel);
+		child.renderRecursive(shader, trueModel, shadowMapID);
 	}
 }

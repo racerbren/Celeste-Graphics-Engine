@@ -44,6 +44,6 @@ public:
 	/**
 	 * @brief Renders the mesh to the given context.
 	 */
-	void render(Shader& shader);
+	void render(Shader& shader, uint32_t shadowMapID);
 
 };

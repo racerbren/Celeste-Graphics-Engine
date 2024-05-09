@@ -66,10 +66,13 @@ Mesh3D::Mesh3D(const std::vector<Vertex3D>& vertices, const std::vector<uint32_t
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Mesh3D::render(Shader& shader) {
+void Mesh3D::render(Shader& shader, uint32_t shadowMapID) {
 	// Activate the mesh's vertex array.
 	glBindVertexArray(m_vao);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_maps[0].id);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, shadowMapID);
 
 	//Activate the mesh's shader
 	shader.activate();
