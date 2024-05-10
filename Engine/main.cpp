@@ -12,12 +12,22 @@
 
 #undef main
 
+//Window width and height
 int width = 1080;
 int height = 720;
 
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0.0f);
+//Keep track of scene origin
+glm::vec3 origin = glm::vec3(0.0f);
+
+glm::vec3 cameraPos = origin;
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+//Directional light
+glm::vec3 sun = glm::vec3(-8.0f, 6.0f, -1.0f);
+
+//Set the resolution of the shadow map
+const uint32_t shadowWidth = 2048, shadowHeight = 2048;
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -32,9 +42,6 @@ void createShadowMap(uint32_t& fbo, uint32_t& id)
 {
 	//Create frame buffer object to represent shadow map
 	glGenFramebuffers(1, &fbo);
-
-	//Set the resolution of the shadow map to be 1024x1024
-	const uint32_t shadowWidth = 1024, shadowHeight = 1024;
 
 	//Create a texture for the shadow map to be drawn to
 	glGenTextures(1, &id);
@@ -231,13 +238,14 @@ int main(int argc, char* argv[])
 		glm::mat4 lightProj, lightView, lightSpace;
 		float nearPlane = 1.0f, farPlane = 20.0f;
 		lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
-		lightView = glm::lookAt(glm::vec3(-8.0f, 6.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		lightView = glm::lookAt(sun, origin, glm::vec3(0.0f, 1.0f, 0.0f));
 		lightSpace = lightProj * lightView;
 
 		simpleDepthShader.activate();
 		simpleDepthShader.setUniform("lightSpaceMatrix", lightSpace);
 
-		glViewport(0, 0, 1024, 1024);
+		//Render the scene to a depth map
+		glViewport(0, 0, shadowWidth, shadowHeight);
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glCullFace(GL_FRONT); //Enable front face culling for rendering the depth map to avoid Peter Panning shadows
@@ -245,18 +253,16 @@ int main(int argc, char* argv[])
 		glCullFace(GL_BACK);  //Re-enable backface culling
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		// reset viewport
+		//Reset the viewport
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glm::mat4 view = glm::mat4(glm::mat3(camera));
 
 		//Render scene objects with default shading
 		defaultShader.activate();
 		defaultShader.setUniform("view", camera);
 		defaultShader.setUniform("projection", perspective);
 		defaultShader.setUniform("viewPos", cameraPos);
-		defaultShader.setUniform("dirLight.direction", glm::vec3(8.0f, -6.0f, 1.0f));
+		defaultShader.setUniform("dirLight.direction", -sun);
 		defaultShader.setUniform("pointLights[0].position", glm::vec3(0, -10, 0));
 		defaultShader.setUniform("pointLights[0].linear", 0.7f);
 		defaultShader.setUniform("pointLights[0].quadratic", 1.8f);
@@ -268,6 +274,7 @@ int main(int argc, char* argv[])
 		//Change depth function because depth buffer will be filled with 1.0 for the skybox and we want to check if the depth values equal the skybox
 		glDepthFunc(GL_LEQUAL);
 		skyboxShader.activate();
+		glm::mat4 view = glm::mat4(glm::mat3(camera));
 		skyboxShader.setUniform("view", view);
 		skyboxShader.setUniform("projection", perspective);
 		defaultSkybox.render(skyboxShader);
