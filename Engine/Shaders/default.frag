@@ -124,5 +124,9 @@ float calculateShadows(vec4 fragPosLightSpace, vec3 normal, vec3 lightDirection)
     //Check if the current depth or closest depth is closer
     float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
+    //For fragments outside of the far plane that should not be in shadow, set equal to 0 so they are always lit
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+
     return shadow;
 }

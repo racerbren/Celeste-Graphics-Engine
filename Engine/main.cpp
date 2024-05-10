@@ -42,8 +42,12 @@ void createShadowMap(uint32_t& fbo, uint32_t& id)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	
+	//Set texture wrapping for depth map to clamp to a white border so that any objects outside of the light's frustum will not be in shadow
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
 	//Attach the shadow map to the frame buffer
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -236,7 +240,9 @@ int main(int argc, char* argv[])
 		glViewport(0, 0, 1024, 1024);
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
+		glCullFace(GL_FRONT); //Enable front face culling for rendering the depth map to avoid Peter Panning shadows
 		island.render(simpleDepthShader, 0);
+		glCullFace(GL_BACK);  //Re-enable backface culling
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		// reset viewport
