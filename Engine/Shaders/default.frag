@@ -33,7 +33,7 @@ uniform vec4 material;
 
 vec4 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDirection);
 vec4 calculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDirection);
-float calculateShadows(vec4 fragPosLightSpace);
+float calculateShadows(vec4 fragPosLightSpace, vec3 normal, vec3 lightDirection);
 
 void main() 
 {
@@ -72,7 +72,7 @@ vec4 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir
     vec3 specular = vec3(1.0, 1.0, 1.0) * material.z * spec;
 
     //Calculate shadows for directional light
-    float shadows = calculateShadows(FragPosLightSpace);
+    float shadows = calculateShadows(FragPosLightSpace, normal, lightDirection);
     
     //Return effects of directional light
     return vec4((ambient + (1.0 - shadows) * (diffuse + specular)), 1.0);
@@ -104,7 +104,7 @@ vec4 calculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewD
     return vec4((ambient + diffuse + specular), 1.0);
 }
 
-float calculateShadows(vec4 fragPosLightSpace)
+float calculateShadows(vec4 fragPosLightSpace, vec3 normal, vec3 lightDirection)
 {
     //Perspective divide light space fragment in clip space to projection coordinates
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
@@ -117,9 +117,12 @@ float calculateShadows(vec4 fragPosLightSpace)
 
     //Get the depth of this fragment by sampling the z coordinate of the projection
     float currentDepth = projCoords.z;
+    
+    //Create a small bias to offset the depths of the shadow map
+    float bias = max(0.05 * (1.0 - dot(normal, lightDirection)), 0.005);
 
     //Check if the current depth or closest depth is closer
-    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
     return shadow;
 }

@@ -12,7 +12,6 @@
 
 #undef main
 
-//Set width and height of the window and create a window. The window is given a OpenGL flag for rendering with OpenGL context
 int width = 1080;
 int height = 720;
 
@@ -28,35 +27,6 @@ float lastX = width / 2;
 float lastY = height / 2;
 float yaw = -90.0f;
 float pitch = 0.0f;
-
-unsigned int quadVAO = 0;
-unsigned int quadVBO;
-void renderQuad()
-{
-	if (quadVAO == 0)
-	{
-		float quadVertices[] = {
-			// positions        // texture Coords
-			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-		};
-		// setup plane VAO
-		glGenVertexArrays(1, &quadVAO);
-		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	}
-	glBindVertexArray(quadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
-}
 
 void createShadowMap(uint32_t& fbo, uint32_t& id)
 {
@@ -106,7 +76,7 @@ void mouseCallback(SDL_Window* window, double x, double y, SDL_Event event)
 
 void processInput(SDL_Window* window, SDL_Event event)
 {
-	float cameraSpeed = 2.5f * deltaTime;
+	float cameraSpeed = 3.5f * deltaTime;
 	if (event.type == SDL_KEYDOWN)
 	{
 		if (event.key.keysym.sym == 119) //W
@@ -147,7 +117,7 @@ void init()
 int main(int argc, char* argv[])
 {
 	init();
-
+	//Set width and height of the window and create a window. The window is given a OpenGL flag for rendering with OpenGL context
 	SDL_Window* window = SDL_CreateWindow("test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
 	//Create an OpenGL context for SDL2
 	SDL_GLContext context = SDL_GL_CreateContext(window);
@@ -203,9 +173,6 @@ int main(int argc, char* argv[])
 
 	Shader simpleDepthShader;
 	simpleDepthShader.load("Shaders/depthShader.vert", "Shaders/depthShader.frag");
-
-	Shader debugDepthShader;
-	debugDepthShader.load("Shaders/debugDepthShader.vert", "Shaders/debugDepthShader.frag");
 	
 	//Get the size of the window for setting the perspective matrix
 	int* wide = &width;
@@ -301,13 +268,6 @@ int main(int argc, char* argv[])
 		skyboxShader.disable();
 		//Set the depth function back to default
 		glDepthFunc(GL_LESS);
-
-		debugDepthShader.activate();
-		debugDepthShader.setUniform("near_plane", nearPlane);
-		debugDepthShader.setUniform("far_plane", farPlane);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, shadowMapID);
-		//renderQuad();
 
 		//Update the window with OpenGL rendering by swapping the back buffer with the front buffer.
 		//The front buffer contains the final image to draw to the window while the back buffer renders everything.
