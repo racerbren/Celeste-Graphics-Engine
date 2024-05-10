@@ -29,6 +29,35 @@ float lastY = height / 2;
 float yaw = -90.0f;
 float pitch = 0.0f;
 
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+void renderQuad()
+{
+	if (quadVAO == 0)
+	{
+		float quadVertices[] = {
+			// positions        // texture Coords
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		};
+		// setup plane VAO
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+	glBindVertexArray(quadVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+}
+
 void createShadowMap(uint32_t& fbo, uint32_t& id)
 {
 	//Create frame buffer object to represent shadow map
@@ -165,6 +194,8 @@ int main(int argc, char* argv[])
 
 	Shader defaultShader;
 	defaultShader.load("Shaders/default.vert", "Shaders/default.frag");
+	defaultShader.activate();
+	defaultShader.setUniform("ourTexture", 0);
 	defaultShader.setUniform("shadowMap", 1);
 
 	Shader skyboxShader;
@@ -172,6 +203,9 @@ int main(int argc, char* argv[])
 
 	Shader simpleDepthShader;
 	simpleDepthShader.load("Shaders/depthShader.vert", "Shaders/depthShader.frag");
+
+	Shader debugDepthShader;
+	debugDepthShader.load("Shaders/debugDepthShader.vert", "Shaders/debugDepthShader.frag");
 	
 	//Get the size of the window for setting the perspective matrix
 	int* wide = &width;
@@ -224,9 +258,9 @@ int main(int argc, char* argv[])
 
 		//Model directional light source with parallel light rays
 		glm::mat4 lightProj, lightView, lightSpace;
-		float nearPlane = 1.0f, farPlane = 150.0f;
+		float nearPlane = 1.0f, farPlane = 20.0f;
 		lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
-		lightView = glm::lookAt(glm::vec3(0, 30, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+		lightView = glm::lookAt(glm::vec3(-8.0f, 6.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		lightSpace = lightProj * lightView;
 
 		simpleDepthShader.activate();
@@ -249,10 +283,11 @@ int main(int argc, char* argv[])
 		defaultShader.setUniform("view", camera);
 		defaultShader.setUniform("projection", perspective);
 		defaultShader.setUniform("viewPos", cameraPos);
-		defaultShader.setUniform("dirLight.direction", glm::vec3(0, -1, 0));
-		defaultShader.setUniform("pointLights[0].position", glm::vec3(0, 0, 0));
+		defaultShader.setUniform("dirLight.direction", glm::vec3(8.0f, -6.0f, 1.0f));
+		defaultShader.setUniform("pointLights[0].position", glm::vec3(0, -10, 0));
 		defaultShader.setUniform("pointLights[0].linear", 0.7f);
 		defaultShader.setUniform("pointLights[0].quadratic", 1.8f);
+		defaultShader.setUniform("lightSpaceMatrix", lightSpace);
 		island.render(defaultShader, shadowMapID);
 		defaultShader.disable();
 
@@ -266,6 +301,13 @@ int main(int argc, char* argv[])
 		skyboxShader.disable();
 		//Set the depth function back to default
 		glDepthFunc(GL_LESS);
+
+		debugDepthShader.activate();
+		debugDepthShader.setUniform("near_plane", nearPlane);
+		debugDepthShader.setUniform("far_plane", farPlane);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, shadowMapID);
+		//renderQuad();
 
 		//Update the window with OpenGL rendering by swapping the back buffer with the front buffer.
 		//The front buffer contains the final image to draw to the window while the back buffer renders everything.

@@ -76,6 +76,8 @@
     <None Include="Shaders\skybox.frag" />
     <None Include="Shaders\depthShader.vert" />
     <None Include="Shaders\depthShader.frag" />
+    <None Include="Shaders\debugDepthShader.vert" />
+    <None Include="Shaders\debugDepthShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\error.jpg">

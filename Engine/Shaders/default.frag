@@ -100,11 +100,8 @@ vec4 calculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewD
     vec3 diffuse = vec3(1.0, 1.0, 1.0) * material.y * diff * attenuation;
     vec3 specular = vec3(1.0, 1.0, 1.0) * material.z * spec * attenuation;
 
-    //Calculate shadows for directional light
-    float shadows = calculateShadows(FragPosLightSpace);
-
     //Return effects of point light
-    return vec4((ambient + (1.0 - shadows) *  (diffuse + specular)), 1.0);
+    return vec4((ambient + diffuse + specular), 1.0);
 }
 
 float calculateShadows(vec4 fragPosLightSpace)
