@@ -121,12 +121,30 @@ float calculateShadows(vec4 fragPosLightSpace, vec3 normal, vec3 lightDirection)
     //Create a small bias to offset the depths of the shadow map
     float bias = max(0.05 * (1.0 - dot(normal, lightDirection)), 0.005);
 
-    //Check if the current depth or closest depth is closer
-    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+    float shadow = 0.0;
 
     //For fragments outside of the far plane that should not be in shadow, set equal to 0 so they are always lit
     if(projCoords.z > 1.0)
         shadow = 0.0;
+    else
+    {
+        //Retrieve the size of a single texel by sampling the shadow map at mipmap 0
+        vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+        for(int x = -1; x <= 1; ++x)
+        {
+            for(int y = -1; y <= 1; ++y)
+            {
+                //Sample x * y values around the projected coordinate to test for shadows 
+                //Use texelSize to offset the texture coordinates
+                float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+            
+                //Check if the current depth or closest depth is closer
+                shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+            }    
+        }
+        //Average the results
+        shadow /= 9.0;
+    }
 
     return shadow;
 }
