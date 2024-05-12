@@ -38,6 +38,8 @@ float lastY = height / 2;
 float yaw = -90.0f;
 float pitch = 0.0f;
 
+SDL_Surface* windowIcon = IMG_Load("resources/skull_icon.png");
+
 void createShadowMap(uint32_t& fbo, uint32_t& id)
 {
 	//Create frame buffer object to represent shadow map
@@ -129,10 +131,12 @@ int main(int argc, char* argv[])
 {
 	init();
 	//Set width and height of the window and create a window. The window is given a OpenGL flag for rendering with OpenGL context
-	SDL_Window* window = SDL_CreateWindow("test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
+	SDL_Window* window = SDL_CreateWindow("Pirate Island", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
 	//Create an OpenGL context for SDL2
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 	SDL_GL_MakeCurrent(window, context);
+
+	SDL_SetWindowIcon(window, windowIcon);
 
 	//Load all OpenGL functions using SDL loader
 	if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
