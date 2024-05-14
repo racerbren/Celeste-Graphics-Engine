@@ -37,7 +37,6 @@ bool renderMound4 = true;
 bool renderMound5 = true;
 std::vector<bool> moundBools = { renderMound1, renderMound2, renderMound3, renderMound4, renderMound5 };
 
-
 //Directional light
 glm::vec3 sun = glm::vec3(-8.0f, 6.0f, -1.0f);
 
@@ -215,6 +214,7 @@ int main(int argc, char* argv[])
 	slr.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
 	slr.move(glm::vec3(-3, -4, 8));
 	slr.grow(glm::vec3(0.003));
+	slr.rotate(glm::vec3(-1.57, 0, 0));
 
 	auto skull = assimpLoad("resources/skull/12140_Skull_v3_L2.obj", true, false, false);
 	skull.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
@@ -249,7 +249,19 @@ int main(int argc, char* argv[])
 	mound5.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
 	mound5.move(mound5pos);
 
-	std::vector<Object3D> scene = { island, fish, wine, slr, skull, goldenBunny, mound1, mound2, mound3, mound4, mound5 };
+	std::vector<Object3D> scene;
+	scene.push_back(island);
+	scene.push_back(std::move(fish));
+	scene.push_back(std::move(wine));
+	scene.push_back(std::move(slr));
+	scene.push_back(std::move(skull));
+	scene.push_back(std::move(goldenBunny));
+	scene.push_back(mound1);
+	scene.push_back(mound2);
+	scene.push_back(mound3);
+	scene.push_back(mound4);
+	scene.push_back(mound5);
+
 
 	//Create the shadow map
 	uint32_t shadowMapFBO, shadowMapID;
@@ -297,7 +309,34 @@ int main(int argc, char* argv[])
 	lightView = glm::lookAt(sun, origin, glm::vec3(0.0f, 1.0f, 0.0f));
 	lightSpace = lightProj * lightView;
 
-	Animator animator;
+	Animator fishAnimator;
+	fishAnimator.addAnimation(std::make_unique<TranslationAnimation>(scene[1], 1.5, glm::vec3(0, 2, 0)));
+	
+	Animator wineAnimator;
+	wineAnimator.addAnimation(std::make_unique<TranslationAnimation>(scene[2], 1.5, glm::vec3(0, 2, 0)));
+
+	Animator slrAnimator;
+	slrAnimator.addAnimation(std::make_unique<TranslationAnimation>(scene[3], 1.5, glm::vec3(0, 2, 0)));
+
+	Animator skullAnimator;
+	skullAnimator.addAnimation(std::make_unique<TranslationAnimation>(scene[4], 1.5, glm::vec3(0, 2, 0)));
+
+	Animator goldenBunnyAnimator;
+	goldenBunnyAnimator.addAnimation(std::make_unique<TranslationAnimation>(scene[5], 1.5, glm::vec3(0, 2, 0)));
+	goldenBunnyAnimator.addAnimation(std::make_unique<RotationAnimation>(scene[5], 3.5, glm::vec3(0, 6.28, 0)));
+
+	fishAnimator.start();
+	wineAnimator.start();
+	slrAnimator.start();
+	skullAnimator.start();
+	goldenBunnyAnimator.start();
+
+	std::vector<Animator> animators;
+	animators.push_back(std::move(fishAnimator));
+	animators.push_back(std::move(wineAnimator));
+	animators.push_back(std::move(slrAnimator));
+	animators.push_back(std::move(skullAnimator));
+	animators.push_back(std::move(goldenBunnyAnimator));
 
 	//main loop runs until window is closed
 	bool destroyed = false;
@@ -351,6 +390,15 @@ int main(int argc, char* argv[])
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+		i = 0;
+		for (auto& animator : animators)
+		{
+			if (moundBools[i] == false)
+				animator.tick(deltaTime);
+			i++;
+		}
+
 		//Render scene objects with default shading
 		i = 0;
 		for (auto obj : scene)
@@ -373,6 +421,7 @@ int main(int argc, char* argv[])
 				i++;
 			}
 		}
+
 
 		//Render skybox last so fragments behind other objects are not rendered
 		//Change depth function because depth buffer will be filled with 1.0 for the skybox and we want to check if the depth values equal the skybox
