@@ -23,6 +23,21 @@ glm::vec3 cameraPos = origin;
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+glm::vec3 mound1pos = glm::vec3(-2, -3.15, -7);
+glm::vec3 mound2pos = glm::vec3(9, -3.15, 1);
+glm::vec3 mound3pos = glm::vec3(-3, -3.15, 8);
+glm::vec3 mound4pos = glm::vec3(-7, -3.15, 0);
+glm::vec3 mound5pos = glm::vec3(6.5, -3.15, -6.5);
+std::vector<glm::vec3> moundPositions = { mound1pos, mound2pos, mound3pos, mound4pos, mound5pos };
+
+bool renderMound1 = true;
+bool renderMound2 = true;
+bool renderMound3 = true;
+bool renderMound4 = true;
+bool renderMound5 = true;
+std::vector<bool> moundBools = { renderMound1, renderMound2, renderMound3, renderMound4, renderMound5 };
+
+
 //Directional light
 glm::vec3 sun = glm::vec3(-8.0f, 6.0f, -1.0f);
 
@@ -100,6 +115,19 @@ void processInput(SDL_Window* window, SDL_Event event)
 			cameraPos -= cameraSpeed * cameraFront;
 		if (event.key.keysym.sym == 100) //D
 			cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		if (event.key.keysym.sym == 101) //E for interacting with mounds
+		{
+			int i = 0;
+			for (auto mound : moundPositions)
+			{
+				float distance = glm::length(cameraPos - mound);
+				if (distance <= 5)
+				{
+					moundBools[i] = false;
+				}
+				i++;
+			}
+		}
 	}
 	if (event.type == SDL_MOUSEMOTION)
 	{
@@ -203,23 +231,23 @@ int main(int argc, char* argv[])
 
 	auto mound1 = assimpLoad("resources/mound/mound.obj", true, false, false);
 	mound1.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
-	mound1.move(glm::vec3(-2, -3.15, -7));
+	mound1.move(mound1pos);
 
 	auto mound2 = assimpLoad("resources/mound/mound.obj", true, false, false);
 	mound2.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
-	mound2.move(glm::vec3(9, -3.15, 1));
+	mound2.move(mound2pos);
 
 	auto mound3 = assimpLoad("resources/mound/mound.obj", true, false, false);
 	mound3.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
-	mound3.move(glm::vec3(-3, -3.15, 8));
+	mound3.move(mound3pos);
 
 	auto mound4 = assimpLoad("resources/mound/mound.obj", true, false, false);
 	mound4.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
-	mound4.move(glm::vec3(-7, -3.15, 0));
+	mound4.move(mound4pos);
 
 	auto mound5 = assimpLoad("resources/mound/mound.obj", true, false, false);
 	mound5.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
-	mound5.move(glm::vec3(6.5, -3.15, -6.5));
+	mound5.move(mound5pos);
 
 	std::vector<Object3D> scene = { island, fish, wine, slr, skull, goldenBunny, mound1, mound2, mound3, mound4, mound5 };
 
@@ -301,12 +329,19 @@ int main(int argc, char* argv[])
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glCullFace(GL_FRONT); //Enable front face culling for rendering the depth map to avoid Peter Panning shadows
 
+		int i = 0;
 		for (auto obj : scene)
 		{
-			simpleDepthShader.activate();
-			simpleDepthShader.setUniform("lightSpaceMatrix", lightSpace);
-			obj.render(simpleDepthShader, 0);
-			simpleDepthShader.disable();
+			if (i > 5 && moundBools[i - 6] == false)
+				i++;
+			else
+			{
+				simpleDepthShader.activate();
+				simpleDepthShader.setUniform("lightSpaceMatrix", lightSpace);
+				obj.render(simpleDepthShader, 0);
+				simpleDepthShader.disable();
+				i++;
+			}
 		}
 		
 		glCullFace(GL_BACK);  //Re-enable backface culling
@@ -317,19 +352,26 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//Render scene objects with default shading
+		i = 0;
 		for (auto obj : scene)
 		{
-			defaultShader.activate();
-			defaultShader.setUniform("view", camera);
-			defaultShader.setUniform("projection", perspective);
-			defaultShader.setUniform("viewPos", cameraPos);
-			defaultShader.setUniform("dirLight.direction", -sun);
-			defaultShader.setUniform("pointLights[0].position", glm::vec3(0, -10, 0));
-			defaultShader.setUniform("pointLights[0].linear", 0.7f);
-			defaultShader.setUniform("pointLights[0].quadratic", 1.8f);
-			defaultShader.setUniform("lightSpaceMatrix", lightSpace);
-			obj.render(defaultShader, shadowMapID);
-			defaultShader.disable();
+			if (i > 5 && moundBools[i - 6] == false)
+				i++;
+			else
+			{
+				defaultShader.activate();
+				defaultShader.setUniform("view", camera);
+				defaultShader.setUniform("projection", perspective);
+				defaultShader.setUniform("viewPos", cameraPos);
+				defaultShader.setUniform("dirLight.direction", -sun);
+				defaultShader.setUniform("pointLights[0].position", glm::vec3(0, -10, 0));
+				defaultShader.setUniform("pointLights[0].linear", 0.7f);
+				defaultShader.setUniform("pointLights[0].quadratic", 1.8f);
+				defaultShader.setUniform("lightSpaceMatrix", lightSpace);
+				obj.render(defaultShader, shadowMapID);
+				defaultShader.disable();
+				i++;
+			}
 		}
 
 		//Render skybox last so fragments behind other objects are not rendered
