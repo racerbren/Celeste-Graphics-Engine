@@ -55,6 +55,7 @@ Object3D assimpLoad(const std::string& path, bool flipTextureCoords, bool genNor
 	}
 
 	std::vector<Object3D> meshes;
+	auto root = scene->mRootNode;
 	std::cout << scene->mNumMeshes << "\n";
 
 	for (uint32_t i = 0; i < scene->mNumMeshes; i++)
@@ -92,7 +93,16 @@ Object3D assimpLoad(const std::string& path, bool flipTextureCoords, bool genNor
 
 			maps.push_back(map);
 		}*/
-		auto obj = Object3D(std::make_shared<Mesh3D>(fromAssimpMesh(scene->mMeshes[i], maps)));
+		auto node = root;
+		if (i > 0)
+			node = node->mChildren[i];
+		glm::mat4 baseTransform;
+		for (auto i = 0; i < 4; i++) {
+			for (auto j = 0; j < 4; j++) {
+				baseTransform[i][j] = node->mTransformation[j][i];
+			}
+		}
+		auto obj = Object3D(std::make_shared<Mesh3D>(fromAssimpMesh(scene->mMeshes[i], maps)), baseTransform);
 		meshes.push_back(obj);
 	}
 	for (int i = 1; i < meshes.size(); i++)

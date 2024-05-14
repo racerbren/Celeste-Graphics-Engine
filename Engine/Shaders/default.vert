@@ -26,5 +26,5 @@ void main()
     FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
 
     // Project the position to clip space.
-    gl_Position = projection * view * vec4(FragPos, 1.0);
+    gl_Position = projection * view * model * vec4(vPosition, 1.0);
 }

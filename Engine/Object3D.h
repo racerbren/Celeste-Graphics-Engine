@@ -15,9 +15,11 @@ private:
 	glm::vec3 m_position;
 	glm::vec3 m_orientation;
 	glm::vec3 m_scale;
+	glm::vec3 m_center;
 
 	// The object's cached local->world transformation matrix.
 	glm::mat4 m_modelMatrix;
+	glm::mat4 m_baseTransform;
 
 	// Recomputes the local->world transformation matrix.
 	void rebuildModelMatrix();
@@ -32,17 +34,21 @@ public:
 	// No default constructor; you must have a mesh to initialize an object.
 	Object3D() = delete;
 
-	Object3D(std::shared_ptr<Mesh3D> &&mesh);
+	Object3D(std::shared_ptr<Mesh3D> &&mesh, const glm::mat4 baseTransform);
+
+	int numChildren;
 
 	// Simple accessors.
 	const glm::vec3& getPosition() const;
 	const glm::vec3& getOrientation() const;
 	const glm::vec3& getScale() const;
+	const glm::vec3& getCenter() const;
 
 	// Simple mutators.
 	void setPosition(const glm::vec3& position);
 	void setOrientation(const glm::vec3& orientation);
 	void setScale(const glm::vec3& scale);
+	void setCenter(const glm::vec3& center);
 	void setMaterial(const glm::vec4& material);
 	
 	// Transformations.
@@ -51,6 +57,7 @@ public:
 	void grow(const glm::vec3& growth);
 
 	void addChild(Object3D child);
+	Object3D& getChild(int index);
 
 	// Rendering.
 	void render(Shader& shader, uint32_t shadowMapID) const;

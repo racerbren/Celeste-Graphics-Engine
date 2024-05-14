@@ -173,6 +173,13 @@ int main(int argc, char* argv[])
 	island.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
 	island.move(glm::vec3(0, -3, 0));
 
+	auto bunny = assimpLoad("resources/bunny/bunny_textured.obj", true, false, false);
+	bunny.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
+	bunny.move(glm::vec3(-2, -3, -7));
+	bunny.grow(glm::vec3(3, 3, 3));
+
+	std::vector<Object3D> scene = { island, bunny };
+
 	//Create the shadow map
 	uint32_t shadowMapFBO, shadowMapID;
 	createShadowMap(shadowMapFBO, shadowMapID);
@@ -212,6 +219,13 @@ int main(int argc, char* argv[])
 	defaultShader.setUniform("pointLights[0].linear", 0.7f);
 	defaultShader.setUniform("pointLights[0].quadratic", 1.8f);
 
+	//Model directional light source with parallel light rays
+	glm::mat4 lightProj, lightView, lightSpace;
+	float nearPlane = 1.0f, farPlane = 20.0f;
+	lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
+	lightView = glm::lookAt(sun, origin, glm::vec3(0.0f, 1.0f, 0.0f));
+	lightSpace = lightProj * lightView;
+
 	Animator animator;
 
 	//main loop runs until window is closed
@@ -238,22 +252,20 @@ int main(int argc, char* argv[])
 		//Clear the depth buffer bit
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//Model directional light source with parallel light rays
-		glm::mat4 lightProj, lightView, lightSpace;
-		float nearPlane = 1.0f, farPlane = 20.0f;
-		lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
-		lightView = glm::lookAt(sun, origin, glm::vec3(0.0f, 1.0f, 0.0f));
-		lightSpace = lightProj * lightView;
-
-		simpleDepthShader.activate();
-		simpleDepthShader.setUniform("lightSpaceMatrix", lightSpace);
-
 		//Render the scene to a depth map
 		glViewport(0, 0, shadowWidth, shadowHeight);
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glCullFace(GL_FRONT); //Enable front face culling for rendering the depth map to avoid Peter Panning shadows
-		island.render(simpleDepthShader, 0);
+
+		for (auto obj : scene)
+		{
+			simpleDepthShader.activate();
+			simpleDepthShader.setUniform("lightSpaceMatrix", lightSpace);
+			obj.render(simpleDepthShader, 0);
+			simpleDepthShader.disable();
+		}
+		
 		glCullFace(GL_BACK);  //Re-enable backface culling
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -262,17 +274,20 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//Render scene objects with default shading
-		defaultShader.activate();
-		defaultShader.setUniform("view", camera);
-		defaultShader.setUniform("projection", perspective);
-		defaultShader.setUniform("viewPos", cameraPos);
-		defaultShader.setUniform("dirLight.direction", -sun);
-		defaultShader.setUniform("pointLights[0].position", glm::vec3(0, -10, 0));
-		defaultShader.setUniform("pointLights[0].linear", 0.7f);
-		defaultShader.setUniform("pointLights[0].quadratic", 1.8f);
-		defaultShader.setUniform("lightSpaceMatrix", lightSpace);
-		island.render(defaultShader, shadowMapID);
-		defaultShader.disable();
+		for (auto obj : scene)
+		{
+			defaultShader.activate();
+			defaultShader.setUniform("view", camera);
+			defaultShader.setUniform("projection", perspective);
+			defaultShader.setUniform("viewPos", cameraPos);
+			defaultShader.setUniform("dirLight.direction", -sun);
+			defaultShader.setUniform("pointLights[0].position", glm::vec3(0, -10, 0));
+			defaultShader.setUniform("pointLights[0].linear", 0.7f);
+			defaultShader.setUniform("pointLights[0].quadratic", 1.8f);
+			defaultShader.setUniform("lightSpaceMatrix", lightSpace);
+			obj.render(defaultShader, shadowMapID);
+			defaultShader.disable();
+		}
 
 		//Render skybox last so fragments behind other objects are not rendered
 		//Change depth function because depth buffer will be filled with 1.0 for the skybox and we want to check if the depth values equal the skybox
@@ -283,7 +298,7 @@ int main(int argc, char* argv[])
 		skyboxShader.setUniform("projection", perspective);
 		defaultSkybox.render(skyboxShader);
 		skyboxShader.disable();
-		//Set the depth function back to default
+		////Set the depth function back to default
 		glDepthFunc(GL_LESS);
 
 		//Update the window with OpenGL rendering by swapping the back buffer with the front buffer.
