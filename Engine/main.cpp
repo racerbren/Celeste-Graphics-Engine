@@ -173,12 +173,27 @@ int main(int argc, char* argv[])
 	island.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
 	island.move(glm::vec3(0, -3, 0));
 
-	auto bunny = assimpLoad("resources/bunny/bunny_textured.obj", true, false, false);
-	bunny.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
-	bunny.move(glm::vec3(-2, -3, -7));
-	bunny.grow(glm::vec3(3, 3, 3));
+	auto mound1 = assimpLoad("resources/mound.obj", true, false, false);
+	mound1.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
+	mound1.move(glm::vec3(-2, -3.15, -7));
 
-	std::vector<Object3D> scene = { island, bunny };
+	auto mound2 = assimpLoad("resources/mound.obj", true, false, false);
+	mound2.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
+	mound2.move(glm::vec3(9, -3.15, 1));
+
+	auto mound3 = assimpLoad("resources/mound.obj", true, false, false);
+	mound3.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
+	mound3.move(glm::vec3(-3, -3.15, 8));
+
+	auto mound4 = assimpLoad("resources/mound.obj", true, false, false);
+	mound4.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
+	mound4.move(glm::vec3(-7, -3.15, 0));
+
+	auto mound5 = assimpLoad("resources/mound.obj", true, false, false);
+	mound5.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
+	mound5.move(glm::vec3(6.5, -3.15, -6.5));
+
+	std::vector<Object3D> scene = { island, mound1, mound2, mound3, mound4, mound5 };
 
 	//Create the shadow map
 	uint32_t shadowMapFBO, shadowMapID;
