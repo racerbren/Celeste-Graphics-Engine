@@ -170,30 +170,58 @@ int main(int argc, char* argv[])
 	Skybox defaultSkybox(faces);
 
 	auto island = assimpLoad("resources/island/island.obj", true, false, false);
-	island.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
+	island.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
 	island.move(glm::vec3(0, -3, 0));
 
-	auto mound1 = assimpLoad("resources/mound.obj", true, false, false);
-	mound1.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
+	auto fish = assimpLoad("resources/fish/12265_Fish_v1_L2.obj", true, false, false);
+	fish.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
+	fish.move(glm::vec3(-2, -4, -7));
+	fish.grow(glm::vec3(0.0125));
+
+	auto wine = assimpLoad("resources/wine/14042_750_mL_Wine_Bottle_r_v1_L3.obj", true, false, false);
+	wine.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
+	wine.move(glm::vec3(9, -4, 1));
+	wine.grow(glm::vec3(0.025));
+
+	auto slr = assimpLoad("resources/slrCamera/10124_SLR_Camera_SG_V1_Iteration2.obj", true, false, false);
+	slr.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
+	slr.move(glm::vec3(-3, -4, 8));
+	slr.grow(glm::vec3(0.003));
+
+	auto skull = assimpLoad("resources/skull/12140_Skull_v3_L2.obj", true, false, false);
+	skull.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
+	skull.move(glm::vec3(-7, -4, 0));
+	skull.grow(glm::vec3(0.0125));
+	skull.rotate(glm::vec3(-90, 0, 0));
+
+	auto goldenBunny = assimpLoad("resources/bunny/bunny_textured.obj", true, false, false);
+	goldenBunny.setMaterial(glm::vec4(0.3, 1.0, 1.0, 32));
+	goldenBunny.addTex("resources/gold.png", "diffuse");
+	goldenBunny.cycleTex();
+	goldenBunny.move(glm::vec3(6.5, -4, -6.5));
+	goldenBunny.grow(glm::vec3(3));
+
+	auto mound1 = assimpLoad("resources/mound/mound.obj", true, false, false);
+	mound1.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
 	mound1.move(glm::vec3(-2, -3.15, -7));
 
-	auto mound2 = assimpLoad("resources/mound.obj", true, false, false);
-	mound2.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
+	auto mound2 = assimpLoad("resources/mound/mound.obj", true, false, false);
+	mound2.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
 	mound2.move(glm::vec3(9, -3.15, 1));
 
-	auto mound3 = assimpLoad("resources/mound.obj", true, false, false);
-	mound3.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
+	auto mound3 = assimpLoad("resources/mound/mound.obj", true, false, false);
+	mound3.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
 	mound3.move(glm::vec3(-3, -3.15, 8));
 
-	auto mound4 = assimpLoad("resources/mound.obj", true, false, false);
-	mound4.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
+	auto mound4 = assimpLoad("resources/mound/mound.obj", true, false, false);
+	mound4.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
 	mound4.move(glm::vec3(-7, -3.15, 0));
 
-	auto mound5 = assimpLoad("resources/mound.obj", true, false, false);
-	mound5.setMaterial(glm::vec4(0.1, 0.8, 0.1, 1));
+	auto mound5 = assimpLoad("resources/mound/mound.obj", true, false, false);
+	mound5.setMaterial(glm::vec4(0.3, 0.8, 0.1, 1));
 	mound5.move(glm::vec3(6.5, -3.15, -6.5));
 
-	std::vector<Object3D> scene = { island, mound1, mound2, mound3, mound4, mound5 };
+	std::vector<Object3D> scene = { island, fish, wine, slr, skull, goldenBunny, mound1, mound2, mound3, mound4, mound5 };
 
 	//Create the shadow map
 	uint32_t shadowMapFBO, shadowMapID;

@@ -64,13 +64,15 @@ Mesh3D::Mesh3D(const std::vector<Vertex3D>& vertices, const std::vector<uint32_t
 	glTexImage2D(GL_TEXTURE_2D, 0, mode, diffuse.texture->w, diffuse.texture->h, 0, mode, GL_UNSIGNED_BYTE, diffuse.texture->pixels);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	m_textureIndex = 0;
+	m_activeTexture = diffuse.id;
 }
 
 void Mesh3D::render(Shader& shader, uint32_t shadowMapID) {
 	// Activate the mesh's vertex array.
 	glBindVertexArray(m_vao);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_maps[0].id);
+	glBindTexture(GL_TEXTURE_2D, m_activeTexture);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, shadowMapID);
 
@@ -88,3 +90,42 @@ void Mesh3D::render(Shader& shader, uint32_t shadowMapID) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Mesh3D::addTexture(std::string path, std::string name)
+{
+	uint32_t textureID;
+
+	SDL_Surface* texture = IMG_Load(path.c_str());
+
+	//Generate new texture on the GPU
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	int mode = GL_RGB;
+	if (texture->format->BytesPerPixel == 4)
+		mode = GL_RGBA;
+
+	glTexImage2D(GL_TEXTURE_2D, 0, mode, texture->w, texture->h, 0, mode, GL_UNSIGNED_BYTE, texture->pixels);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	Map map;
+	map.id = textureID;
+	map.path = path;
+	map.texture = texture;
+	map.type = name;
+
+	m_maps.push_back(map);
+}
+
+void Mesh3D::cycleTexture()
+{
+	if (m_textureIndex == m_maps.size() - 1)
+		m_textureIndex = 0;
+	else
+		m_textureIndex++;
+	m_activeTexture = m_maps[m_textureIndex].id;
+}

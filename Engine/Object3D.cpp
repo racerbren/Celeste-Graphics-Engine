@@ -119,3 +119,13 @@ void Object3D::renderRecursive(Shader& shader, const glm::mat4& parentMatrix, ui
 		child.renderRecursive(shader, trueModel, shadowMapID);
 	}
 }
+
+void Object3D::addTex(std::string path, std::string name)
+{
+	m_mesh->addTexture(path, name);
+}
+
+void Object3D::cycleTex()
+{
+	m_mesh->cycleTexture();
+}

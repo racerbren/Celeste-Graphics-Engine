@@ -28,6 +28,8 @@ private:
 	uint32_t m_vao;
 	uint32_t m_vbo;
 	uint32_t m_ebo;
+	uint32_t m_activeTexture;
+	int m_textureIndex;
 
 public:
 	std::vector<Vertex3D> m_vertices;
@@ -45,5 +47,8 @@ public:
 	 * @brief Renders the mesh to the given context.
 	 */
 	void render(Shader& shader, uint32_t shadowMapID);
+
+	void addTexture(std::string path, std::string name);
+	void cycleTexture();
 
 };

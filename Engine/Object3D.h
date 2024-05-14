@@ -62,4 +62,7 @@ public:
 	// Rendering.
 	void render(Shader& shader, uint32_t shadowMapID) const;
 	void renderRecursive(Shader& shader, const glm::mat4& parentMatrix, uint32_t shadowMapID) const;
+
+	void addTex(std::string path, std::string name);
+	void cycleTex();
 };
