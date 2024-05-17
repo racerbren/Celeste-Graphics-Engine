@@ -87,6 +87,9 @@ void Mesh3D::render(Shader& shader, uint32_t shadowMapID) {
 
 	// Deactivate the mesh's vertex array and texture.
 	glBindVertexArray(0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 

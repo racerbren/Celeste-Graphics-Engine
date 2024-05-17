@@ -3,6 +3,8 @@
 #include "Animation.h"
 #include "RotationAnimation.h"
 #include "TranslationAnimation.h"
+#include "TRAnimation.h"
+#include "SkullLaughAnimation.h"
 
 class Animator {
 private:

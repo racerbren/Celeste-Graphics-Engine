@@ -145,25 +145,35 @@
   <ItemGroup>
     <ClCompile Include="Animator.cpp" />
     <ClCompile Include="AssimpImport.cpp" />
+    <ClCompile Include="Billboard.cpp" />
+    <ClCompile Include="BillboardMesh.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh3D.cpp" />
     <ClCompile Include="Object3D.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="Water.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Animator.h" />
     <ClInclude Include="AssimpImport.h" />
+    <ClInclude Include="Billboard.h" />
+    <ClInclude Include="BillboardMesh.h" />
     <ClInclude Include="Mesh3D.h" />
     <ClInclude Include="Object3D.h" />
     <ClInclude Include="RotationAnimation.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="SkullLaughAnimation.h" />
     <ClInclude Include="Skybox.h" />
+    <ClInclude Include="TRAnimation.h" />
     <ClInclude Include="TranslationAnimation.h" />
+    <ClInclude Include="Water.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\billboardShader.frag" />
+    <None Include="Shaders\billboardShader.vert" />
     <None Include="Shaders\debugDepthShader.frag" />
     <None Include="Shaders\debugDepthShader.vert" />
     <None Include="Shaders\depthShader.frag" />
@@ -175,6 +185,10 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\error.jpg" />
+    <Image Include="resources\fire.png" />
+    <Image Include="resources\gold.png" />
+    <Image Include="resources\goldspec.png" />
+    <Image Include="resources\skull_icon.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

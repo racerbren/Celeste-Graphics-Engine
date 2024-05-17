@@ -9,6 +9,8 @@
 #include "AssimpImport.h"
 #include "Animator.h"
 #include "Skybox.h"
+//#include "Billboard.h"
+//#include "BillboardMesh.h"
 
 #undef main
 
@@ -23,6 +25,7 @@ glm::vec3 cameraPos = origin;
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+//Positions of dirt mounds
 glm::vec3 mound1pos = glm::vec3(-2, -3.15, -7);
 glm::vec3 mound2pos = glm::vec3(9, -3.15, 1);
 glm::vec3 mound3pos = glm::vec3(-3, -3.15, 8);
@@ -39,6 +42,9 @@ std::vector<bool> moundBools = { renderMound1, renderMound2, renderMound3, rende
 
 //Directional light
 glm::vec3 sun = glm::vec3(-8.0f, 6.0f, -1.0f);
+
+//Point light
+glm::vec3 fire = glm::vec3(3.85, -2.57, -1.91);
 
 //Set the resolution of the shadow map
 const uint32_t shadowWidth = 2048, shadowHeight = 2048;
@@ -262,7 +268,6 @@ int main(int argc, char* argv[])
 	scene.push_back(mound4);
 	scene.push_back(mound5);
 
-
 	//Create the shadow map
 	uint32_t shadowMapFBO, shadowMapID;
 	createShadowMap(shadowMapFBO, shadowMapID);
@@ -295,10 +300,10 @@ int main(int argc, char* argv[])
 	skyboxShader.setUniform("projection", perspective);
 
 	//Set directional light
-	defaultShader.setUniform("dirLight.direction", glm::vec3(0, -1, 0));
+	defaultShader.setUniform("dirLight.direction", -sun);
 
 	//Set point light
-	defaultShader.setUniform("pointLights[0].position", glm::vec3(0, 0, 0));
+	defaultShader.setUniform("pointLights[0].position", fire);
 	defaultShader.setUniform("pointLights[0].linear", 0.7f);
 	defaultShader.setUniform("pointLights[0].quadratic", 1.8f);
 
@@ -322,8 +327,8 @@ int main(int argc, char* argv[])
 	skullAnimator.addAnimation(std::make_unique<TranslationAnimation>(scene[4], 1.5, glm::vec3(0, 2, 0)));
 
 	Animator goldenBunnyAnimator;
-	goldenBunnyAnimator.addAnimation(std::make_unique<TranslationAnimation>(scene[5], 1.5, glm::vec3(0, 2, 0)));
-	goldenBunnyAnimator.addAnimation(std::make_unique<RotationAnimation>(scene[5], 3.5, glm::vec3(0, 6.28, 0)));
+	goldenBunnyAnimator.addAnimation(std::make_unique<TRAnimation>(scene[5], 1.5, glm::vec3(0, 2, 0), glm::vec3(0, 6.28, 0)));
+	goldenBunnyAnimator.addAnimation(std::make_unique<RotationAnimation>(scene[5], 3.5, glm::vec3(0, 12.56, 0)));
 
 	fishAnimator.start();
 	wineAnimator.start();
@@ -401,7 +406,7 @@ int main(int argc, char* argv[])
 
 		//Render scene objects with default shading
 		i = 0;
-		for (auto obj : scene)
+		for (auto& obj : scene)
 		{
 			if (i > 5 && moundBools[i - 6] == false)
 				i++;
@@ -412,7 +417,7 @@ int main(int argc, char* argv[])
 				defaultShader.setUniform("projection", perspective);
 				defaultShader.setUniform("viewPos", cameraPos);
 				defaultShader.setUniform("dirLight.direction", -sun);
-				defaultShader.setUniform("pointLights[0].position", glm::vec3(0, -10, 0));
+				defaultShader.setUniform("pointLights[0].position", glm::vec3(3.85, -2.57, -1.91));
 				defaultShader.setUniform("pointLights[0].linear", 0.7f);
 				defaultShader.setUniform("pointLights[0].quadratic", 1.8f);
 				defaultShader.setUniform("lightSpaceMatrix", lightSpace);
@@ -421,7 +426,6 @@ int main(int argc, char* argv[])
 				i++;
 			}
 		}
-
 
 		//Render skybox last so fragments behind other objects are not rendered
 		//Change depth function because depth buffer will be filled with 1.0 for the skybox and we want to check if the depth values equal the skybox

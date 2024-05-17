@@ -56,7 +56,8 @@ public:
 	void rotate(const glm::vec3& rotation);
 	void grow(const glm::vec3& growth);
 
-	void addChild(Object3D child);
+	void addChild(Object3D&& child);
+	const Object3D& getChild(int index) const;
 	Object3D& getChild(int index);
 
 	// Rendering.

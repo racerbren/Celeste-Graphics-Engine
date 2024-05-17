@@ -91,17 +91,21 @@ void Object3D::grow(const glm::vec3& growth)
 	rebuildModelMatrix();
 }
 
-void Object3D::addChild(Object3D child)
+void Object3D::addChild(Object3D&& child)
 {
-	m_children.push_back(child);
+	m_children.emplace_back(child);
 	numChildren = m_children.size();
+}
+
+const Object3D& Object3D::getChild(int index) const
+{
+	return m_children[index];
 }
 
 Object3D& Object3D::getChild(int index)
 {
 	return m_children[index];
 }
-
 
 void Object3D::render(Shader& shader, uint32_t shadowMapID) const
 {

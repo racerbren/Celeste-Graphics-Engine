@@ -107,7 +107,7 @@ Object3D assimpLoad(const std::string& path, bool flipTextureCoords, bool genNor
 	}
 	for (int i = 1; i < meshes.size(); i++)
 	{
-		meshes[0].addChild(meshes[i]);
+		meshes[0].addChild(std::move(meshes[i]));
 	}
 	return meshes[0];
 }
